@@ -51,17 +51,14 @@ const getProperties = (num) => {
 // Function to get the sum of digits
 const getDigitSum = (num) => {
     if (!Number.isInteger(num)) return null;
-    return Math.abs(num)
-        .toString()
-        .split("")
-        .reduce((sum, digit) => sum + parseInt(digit), 0);
+    return Math.abs(num).toString().split("").reduce((sum, digit) => sum + parseInt(digit), 0);
 };
 
 // Route to classify the number
 app.get("/api/classify-number", async (req, res) => {
     const { number } = req.query;
 
-    // Validate input
+    // Validate input: Reject empty or non-numeric inputs
     if (!number || isNaN(number)) {
         return res.status(400).json({
             number,
@@ -70,7 +67,7 @@ app.get("/api/classify-number", async (req, res) => {
         });
     }
 
-    const num = Number(number);
+    const num = Number(number); // Convert to number
 
     try {
         // Fetch a fun fact from Numbers API
