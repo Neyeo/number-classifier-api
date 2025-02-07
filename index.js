@@ -44,8 +44,12 @@ const getProperties = (num) => {
 
 // Function to get the sum of digits
 const getDigitSum = (num) => {
-    return num.toString().split("").reduce((sum, digit) => sum + parseInt(digit), 0);
+    return Math.abs(num)
+        .toString()
+        .split("")
+        .reduce((sum, digit) => sum + parseInt(digit), 0);
 };
+
 
 // Route to classify the number
 app.get("/api/classify-number", async (req, res) => {
@@ -56,10 +60,20 @@ app.get("/api/classify-number", async (req, res) => {
         return res.status(400).json({
             number,
             error: true,
+            message: "Invalid input. Please provide a valid integer."
         });
     }
 
-    const num = parseInt(number);
+    const num = Number(number);
+
+    // Reject non-integer values but allow negative integers
+    if (!Number.isInteger(num)) {
+        return res.status(400).json({
+            number,
+            error: true,
+            message: "Invalid input. Only integers are allowed."
+        });
+    }
 
     try {
         // Fetch a fun fact from Numbers API
