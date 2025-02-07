@@ -44,7 +44,10 @@ const getProperties = (num) => {
 
 // Function to get the sum of digits
 const getDigitSum = (num) => {
-    return Math.abs(num).toString().split("").reduce((sum, digit) => sum + parseInt(digit), 0);
+    return Math.abs(num)
+        .toString()
+        .split("")
+        .reduce((sum, digit) => sum + parseInt(digit), 0);
 };
 
 // Route to classify the number
@@ -52,31 +55,44 @@ app.get("/api/classify-number", async (req, res) => {
     const { number } = req.query;
 
     // Validate input
-    const num = Number(number);
-    if (isNaN(num)) {
+    if (!number || isNaN(number)) {
         return res.status(400).json({
             number,
             error: true,
-            message: "Invalid input. Please provide a valid number."
+            message: "Invalid input. Please provide a valid integer."
         });
     }
+
+    const num = Number(number);
+
+    // Reject non-integer values but allow negative integers
+    if (!Number.isInteger(num)) {
+        return res.status(400).json({
+            number,
+            error: true,
+            message: "Invalid input. Only integers are allowed.",
+            fun_fact: "Fun facts are only available for whole numbers."
+        });
+    }
+
+    let funFact = "No fact available.";
 
     try {
         // Fetch a fun fact from Numbers API
         const factResponse = await axios.get(`http://numbersapi.com/${num}/math?json`);
-        const funFact = factResponse.data.text;
-
-        res.json({
-            number: num,
-            is_prime: isPrime(num),
-            is_perfect: isPerfect(num),
-            properties: getProperties(num),
-            digit_sum: getDigitSum(num),
-            fun_fact: funFact,
-        });
+        funFact = factResponse.data.text;
     } catch (error) {
-        res.status(500).json({ error: "Failed to fetch fun fact" });
+        console.error("Error fetching fun fact:", error.message);
     }
+
+    res.json({
+        number: num,
+        is_prime: isPrime(num),
+        is_perfect: isPerfect(num),
+        properties: getProperties(num),
+        digit_sum: getDigitSum(num),
+        fun_fact: funFact
+    });
 });
 
 // Start the server
