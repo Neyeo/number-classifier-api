@@ -211,13 +211,7 @@ app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
  
  ![FINAL](./img/Final.jpg)
 
- **Troubleshooting Common Issues**
- - Allow HTTP traffic: Using the command **sudo ufw allow 'Nginx Full'**, Ensure cloud provider security group allows inbound port 80.
-
-
- **Changes Not Reflecting**
- - Clear the browser cache and restart NGINX.
-
+ 
  **Learning Outcomes**
  - Understanding how to create a RESTful API using Node.js and Express.js.
  - Handling GET requests and query parameters efficiently.
