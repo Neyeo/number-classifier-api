@@ -44,34 +44,20 @@ const getProperties = (num) => {
 
 // Function to get the sum of digits
 const getDigitSum = (num) => {
-    return Math.abs(num)
-        .toString()
-        .split("")
-        .reduce((sum, digit) => sum + parseInt(digit), 0);
+    return Math.abs(num).toString().split("").reduce((sum, digit) => sum + parseInt(digit), 0);
 };
-
 
 // Route to classify the number
 app.get("/api/classify-number", async (req, res) => {
     const { number } = req.query;
 
     // Validate input
-    if (!number || isNaN(number)) {
-        return res.status(400).json({
-            number,
-            error: true,
-            message: "Invalid input. Please provide a valid integer."
-        });
-    }
-
     const num = Number(number);
-
-    // Reject non-integer values but allow negative integers
-    if (!Number.isInteger(num)) {
+    if (isNaN(num)) {
         return res.status(400).json({
             number,
             error: true,
-            message: "Invalid input. Only integers are allowed."
+            message: "Invalid input. Please provide a valid number."
         });
     }
 
