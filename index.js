@@ -51,7 +51,10 @@ const getProperties = (num) => {
 // Function to get the sum of digits
 const getDigitSum = (num) => {
     if (!Number.isInteger(num)) return null;
-    return num.toString().split("").reduce((sum, digit) => sum + parseInt(digit), 0);
+    return Math.abs(num)
+        .toString()
+        .split("")
+        .reduce((sum, digit) => sum + parseInt(digit), 0);
 };
 
 // Route to classify the number
