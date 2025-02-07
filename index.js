@@ -7,7 +7,7 @@ app.use(cors());
 
 // Function to check if a number is prime
 const isPrime = (num) => {
-    if (num < 2) return false;
+    if (num < 2 || !Number.isInteger(num)) return false;
     for (let i = 2; i * i <= num; i++) {
         if (num % i === 0) return false;
     }
@@ -16,6 +16,7 @@ const isPrime = (num) => {
 
 // Function to check if a number is perfect
 const isPerfect = (num) => {
+    if (!Number.isInteger(num)) return false;
     let sum = 1;
     for (let i = 2; i * i <= num; i++) {
         if (num % i === 0) {
@@ -28,6 +29,7 @@ const isPerfect = (num) => {
 
 // Function to check if a number is an Armstrong number
 const isArmstrong = (num) => {
+    if (!Number.isInteger(num)) return false;
     const digits = num.toString().split("").map(Number);
     const power = digits.length;
     const sum = digits.reduce((acc, d) => acc + Math.pow(d, power), 0);
@@ -37,17 +39,19 @@ const isArmstrong = (num) => {
 // Function to get properties of the number
 const getProperties = (num) => {
     const properties = [];
-    if (isArmstrong(num)) properties.push("armstrong");
-    properties.push(num % 2 === 0 ? "even" : "odd");
+    if (!Number.isInteger(num)) {
+        properties.push("floating-point");
+    } else {
+        if (isArmstrong(num)) properties.push("armstrong");
+        properties.push(num % 2 === 0 ? "even" : "odd");
+    }
     return properties;
 };
 
 // Function to get the sum of digits
 const getDigitSum = (num) => {
-    return Math.abs(num)
-        .toString()
-        .split("")
-        .reduce((sum, digit) => sum + parseInt(digit), 0);
+    if (!Number.isInteger(num)) return null;
+    return num.toString().split("").reduce((sum, digit) => sum + parseInt(digit), 0);
 };
 
 // Route to classify the number
@@ -59,40 +63,35 @@ app.get("/api/classify-number", async (req, res) => {
         return res.status(400).json({
             number,
             error: true,
-            message: "Invalid input. Please provide a valid integer."
+            message: "Invalid input. Please provide a valid number."
         });
     }
 
     const num = Number(number);
 
-    // Reject non-integer values but allow negative integers
-    if (!Number.isInteger(num)) {
-        return res.status(400).json({
-            number,
-            error: true,
-            message: "Invalid input. Only integers are allowed.",
+    try {
+        // Fetch a fun fact from Numbers API
+        const factResponse = await axios.get(`http://numbersapi.com/${Math.floor(num)}/math?json`);
+        const funFact = factResponse.data.text || "No fact available.";
+
+        res.json({
+            number: num,
+            is_prime: isPrime(num),
+            is_perfect: isPerfect(num),
+            properties: getProperties(num),
+            digit_sum: getDigitSum(num),
+            fun_fact: funFact,
+        });
+    } catch (error) {
+        res.json({
+            number: num,
+            is_prime: isPrime(num),
+            is_perfect: isPerfect(num),
+            properties: getProperties(num),
+            digit_sum: getDigitSum(num),
             fun_fact: "Fun facts are only available for whole numbers."
         });
     }
-
-    let funFact = "No fact available.";
-
-    try {
-        // Fetch a fun fact from Numbers API
-        const factResponse = await axios.get(`http://numbersapi.com/${num}/math?json`);
-        funFact = factResponse.data.text;
-    } catch (error) {
-        console.error("Error fetching fun fact:", error.message);
-    }
-
-    res.json({
-        number: num,
-        is_prime: isPrime(num),
-        is_perfect: isPerfect(num),
-        properties: getProperties(num),
-        digit_sum: getDigitSum(num),
-        fun_fact: funFact
-    });
 });
 
 // Start the server
